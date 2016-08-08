@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<input id="SaveSVG" type="button" value="Save SVG" onclick="save_svg();" />
+<br>
+<svg width="${canvasw}" height="${canvash}"></svg>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+
+var svg = d3.select("svg"),
+    width = +svg.attr("width"),
+    height = +svg.attr("height");
+
+var color = d3.scaleOrdinal(d3.schemeCategory20);
+
+var simulation = d3.forceSimulation()
+    .force("link", d3.forceLink().id(function (d) { return d.id; })
+                     .distance(20*${force_scale}))
+    .force("charge", d3.forceManyBody().strength(-30*${force_scale}))
+    .force("center", d3.forceCenter(width / 2, height / 2));
+
+var graph = ${graph};
+
+var link = svg.append("g")
+    .attr("class", "links")
+    .selectAll("line")
+    .data(graph.links)
+    .enter().append("line")
+    .attr("stroke-width", function (d) { return ${scale}*Math.sqrt(d.value); })
+    .attr("stroke", "#999")
+    .attr("stroke-opacity", "0.6");
+    
+
+var node = svg.append("g")
+    .attr("class", "nodes")
+    .selectAll("circle")
+    .data(graph.nodes)
+    .enter().append("circle")
+    .attr("r", ${scale}*5)
+    .attr("fill", function (d) { return color(d.group); })
+    .attr("stroke", "#fff")
+    .attr("stroke-width", String(1.5*${scale})+"px")
+    .call(d3.drag().on("start", dragstarted)
+                   .on("drag", dragged)
+                   .on("end", dragended))
+    .on('click', click);
+
+node.append("title")
+    .text(function (d) { return d.id; });
+
+simulation.nodes(graph.nodes)
+          .on("tick", ticked);
+
+simulation.force("link")
+          .links(graph.links);
+
+save_counter = 0;
+
+function ticked() {
+  link.attr("x1", function (d) { return d.source.x; })
+      .attr("y1", function (d) { return d.source.y; })
+      .attr("x2", function (d) { return d.target.x; })
+      .attr("y2", function (d) { return d.target.y; });
+  node.attr("cx", function (d) { return d.x; })
+      .attr("cy", function (d) { return d.y; });
+  
+  if(${save_freq} && save_counter % ${save_freq} == 0) {
+    save_svg();
+    console.log('SAVE ' + save_counter)
+  };
+  save_counter++;
+};
+
+function dragstarted(d) {
+  if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+  d.fx = d.x;
+  d.fy = d.y;
+}
+
+function dragged(d) {
+  d.fx = d3.event.x;
+  d.fy = d3.event.y;
+}
+
+function dragended(d) {
+  if (!d3.event.active) simulation.alphaTarget(0);
+  d.fx = null;
+  d.fy = null;
+}
+
+${click_function}
+
+function save_svg() {
+  var html = d3.select("svg")
+               .attr("title", "test2")
+               .attr("version", 1.1)
+               .attr("xmlns", "http://www.w3.org/2000/svg")
+               .node().outerHTML;
+  var svgData = html.split(">").join(">\\n"); //hack
+  var svgBlob = new Blob([svgData], {type:"image/svg+xml;charset=utf-8"});
+  var svgUrl = URL.createObjectURL(svgBlob);
+  var downloadLink = document.createElement("a");
+  downloadLink.href = svgUrl;
+  downloadLink.download = "newesttree.svg";
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
+}
+
+</script>

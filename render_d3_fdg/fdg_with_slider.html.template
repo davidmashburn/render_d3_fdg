@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<!--This: https://bl.ocks.org/mbostock/6452972#index.html
+and this: https://bl.ocks.org/mbostock/1095795-->
+<meta charset="utf-8">
+<input id="SaveSVG" type="button" value="Save SVG" onclick="save_svg();" />
+<br>
+<div id="slider_area">
+<svg width="960" height="50"></svg>
+</div>
+<div id="fdg_area">
+<svg width="${canvasw}" height="${canvash}"></svg>
+</div>
+
+
+<script src="https://d3js.org/d3.v4.js"></script>
+<script>
+
+////////////////////////////////////////////////////////////////////////
+//Helper functions
+////////////////////////////////////////////////////////////////////////
+
+function clone(x) {
+    return JSON.parse(JSON.stringify(x));
+}
+
+function print(x) {
+    console.log(clone(x));
+}
+
+function node_id_test(a, b) {
+    return a.id == b.id;
+}
+
+function link_id_fun(d) {
+    return d.source.id + "-" + d.target.id;
+}
+
+function link_id_test(a, b) {
+    return a.source.id == b.source.id &&
+           a.target.id == b.target.id;
+}
+
+function nodeCounter(links) {
+    //Count all the nodes in the links
+    var counter = {};
+    links.forEach(function(val) {
+        [val.source.id, val.target.id].forEach(function(st) {
+            counter[st] = 1 + (counter[st] ? counter[st] : 0); });});
+    return counter;
+}
+
+function sliceDown(graph, cutoff) {
+    // Return a sub-setted version of graph
+    var new_graph = {"nodes": [], "links": []};
+    graph.links.forEach(function(i) {
+        if(i.value > cutoff) {
+            new_graph.links.push(i); }});
+    var node_link_count = nodeCounter(new_graph.links);
+    graph.nodes.forEach(function(i) {
+        if((i.id in node_link_count) &&
+            node_link_count[i.id] > 0) {
+            new_graph.nodes.push(i); }});
+    return new_graph;
+}
+
+function action_on_missing(s1, s2, test, action) {
+    // Helper function
+    // For each item in s1, if there is not a corresponding item in s2, do some action
+    // Always loops over s1 in reverse order (in case that action is a deletion)
+    var i, j, v1, v2, broke;
+    for(i=s1.length-1; i>=0; i--) {
+        v1 = s1[i];
+        broke = false;
+        for(j in s2.nodes) {
+            v2 = s2[j];
+            if(test(v1, v2)) {
+                broke = true;
+                break;
+            }
+        }
+        if(!broke) {
+            action(i, j, v1, v2);
+        }
+    }
+}
+
+function update_graph_data(graph, new_graph) {
+    // Four loops to: remove nodes, remove links, add nodes, add links
+    action_on_missing(graph.nodes, new_graph.nodes, node_id_test, function(i, j, v, newv) {
+        graph.nodes.splice(i, 1); })
+    action_on_missing(graph.links, new_graph.links, link_id_test, function(i, j, v, newv) {
+        graph.links.splice(i, 1); })
+    action_on_missing(new_graph.nodes, graph.nodes, node_id_test, function(i, j, newv, v) {
+        graph.nodes.push(nodes_by_id[newv.id]); })
+    action_on_missing(new_graph.links, graph.links, link_id_test, function(i, j, newv, v) {
+        graph.links.push(links_by_id_pair[link_id_fun(newv)]); })
+}
+
+function slider_action(h) {
+    //globals used: handle, fdg_svg, graph, graph_rec, simulation
+    handle.attr("cx", x(h));
+    update_graph_data(graph, sliceDown(graph_rec, h));
+    update(graph);
+    simulation.alpha(1).alphaTarget(0).restart();
+}
+
+////////////////////////////////////////////////////////////////////////
+// Graph functions
+////////////////////////////////////////////////////////////////////////
+
+function ticked() {
+  //globals used: link, link_update, node, node_update
+  [link, link_update].forEach(function(l) {
+      l.attr("x1", function (d) { return d.source.x; })
+       .attr("y1", function (d) { return d.source.y; })
+       .attr("x2", function (d) { return d.target.x; })
+       .attr("y2", function (d) { return d.target.y; }); });
+  [node, node_update].forEach(function(n) {
+      n.attr("cx", function (d) { return d.x; })
+       .attr("cy", function (d) { return d.y; }); });
+
+  if(${save_freq} && save_counter % ${save_freq} == 0) {
+    save_svg();
+    console.log('SAVE ' + save_counter)
+  };
+  save_counter++;
+};
+
+function dragstarted(d) {
+  if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+  d.fx = d.x;
+  d.fy = d.y;
+}
+
+function dragged(d) {
+  d.fx = d3.event.x;
+  d.fy = d3.event.y;
+}
+
+function dragended(d) {
+  if (!d3.event.active) simulation.alphaTarget(0);
+  d.fx = null;
+  d.fy = null;
+}
+
+${click_function}
+
+function save_svg() {
+  var html = d3.select("svg")
+               .attr("title", "test2")
+               .attr("version", 1.1)
+               .attr("xmlns", "http://www.w3.org/2000/svg")
+               .node().outerHTML;
+  var svgData = html.split(">").join(">\\n"); //hack
+  var svgBlob = new Blob([svgData], {type:"image/svg+xml;charset=utf-8"});
+  var svgUrl = URL.createObjectURL(svgBlob);
+  var downloadLink = document.createElement("a");
+  downloadLink.href = svgUrl;
+  downloadLink.download = "newesttree.svg";
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
+}
+
+function update(graph) {
+    //globals used: link, link_update, node, node_update
+    link_update = fdg_svg.selectAll(".links")
+        .selectAll("line")
+        .data(graph.links,
+              link_id_fun);
+    link = link_update
+        .enter().append("line")
+        .attr("stroke-width", function (d) { return ${scale}*Math.sqrt(d.value); })
+        .attr("stroke", "#999")
+        .attr("stroke-opacity", "0.6");
+    
+    node_update = fdg_svg.selectAll(".nodes")
+        .selectAll("circle")
+        .data(graph.nodes,
+              function (d) {return d.id;});
+    node = node_update
+        .enter().append("circle")
+        .attr("r", ${scale}*5)
+        .attr("fill", function (d) { return color(d.group); })
+        .attr("stroke", "#fff")
+        .attr("stroke-width", String(1.5*${scale})+"px")
+        .call(d3.drag().on("start", dragstarted)
+                       .on("drag", dragged)
+                       .on("end", dragended))
+        .on('click', click);
+    
+    link_update.exit().remove();
+    node_update.exit().remove();
+    
+    node.append("title")
+        .text(function (d) { return d.id; });
+}
+
+////////////////////////////////////////////////////////////////////////
+// Slider setup
+////////////////////////////////////////////////////////////////////////
+
+var slider_svg = d3.select("#slider_area svg"),
+    margin = {right: 50, left: 50},
+    width = +slider_svg.attr("width") - margin.left - margin.right,
+    height = +slider_svg.attr("height");
+
+var x = d3.scaleLinear()
+    .domain([0.0, 1.0])
+    .range([0, width])
+    .clamp(true);
+
+var slider = slider_svg.append("g")
+    .attr("class", "slider")
+    .attr("transform", "translate(" + margin.left + "," + height / 2 + ")");
+
+slider.append("line")
+    .attr("class", "track")
+    .attr("style", "stroke-linecap: round; stroke: #000; stroke-opacity: 0.3; stroke-width: 10px;")
+    .attr("x1", x.range()[0])
+    .attr("x2", x.range()[1])
+  .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+    .attr("class", "track-inset")
+    .attr("style", "stroke-linecap: round; stroke: #ddd; stroke-width: 8px;")
+  .select(function() { return this.parentNode.appendChild(this.cloneNode(true)); })
+    .attr("class", "track-overlay")
+    .attr("style", "stroke-linecap: round; pointer-events: stroke; stroke-width: 50px; cursor: crosshair;")
+    .call(d3.drag()
+        .on("start.interrupt", function() { slider.interrupt(); })
+        .on("start drag", function() { slider_action(x.invert(d3.event.x)); }));
+
+slider.insert("g", ".track-overlay")
+    .attr("class", "ticks")
+    .attr("style", "font: 10px sans-serif;")
+    .attr("transform", "translate(0," + 18 + ")")
+  .selectAll("text")
+  .data(x.ticks(10))
+  .enter().append("text")
+    .attr("x", x)
+    .attr("text-anchor", "middle")
+    .text(function(d) { return d.toFixed(1); });
+
+var handle = slider.insert("circle", ".track-overlay")
+    .attr("class", "handle")
+    .attr("style", "fill: #fff; stroke: #000; stroke-opacity: 0.5; stroke-width: 1.25px;")
+    .attr("r", 9);
+
+slider.transition() // Gratuitous intro!
+    .duration(750)
+    .tween("slider_action", function() {
+      i = d3.interpolate(0, 0.8);
+      return function(t) { slider_action(i(t)); };
+    });
+
+////////////////////////////////////////////////////////////////////////
+//Graph setup
+////////////////////////////////////////////////////////////////////////
+
+var save_counter = 0;
+
+var fdg_svg = d3.select("#fdg_area svg"),
+    width = +fdg_svg.attr("width"),
+    height = +fdg_svg.attr("height");
+
+fdg_svg.append("g").attr("class", "links")
+fdg_svg.append("g").attr("class", "nodes")
+
+var color = d3.scaleOrdinal(d3.schemeCategory20);
+
+var simulation = d3.forceSimulation()
+    .force("link", d3.forceLink().id(function (d) { return d.id; })
+                     .distance(20*${force_scale}))
+    .force("charge", d3.forceManyBody().strength(-30*${force_scale}))
+    .force("center", d3.forceCenter(width / 2, height / 2));
+
+var graph = ${graph};
+
+simulation.nodes(graph.nodes)
+          .on("tick", ticked);
+
+simulation.force("link")
+          .links(graph.links);
+
+var graph_rec = clone(graph); // A copy of the simulation-modified graph
+
+var link, link_update, node, node_update;
+
+// Make dictionaries to look up original nodes and links by id (or id pair)
+var nodes_by_id = {}, links_by_id_pair = {};
+graph.nodes.forEach(function(v) { nodes_by_id[v.id] = v; });
+graph.links.forEach(function(v) { links_by_id_pair[link_id_fun(v)] = v; });
+
+update(graph); // Build the first graph, start the sim, etc...
+
+</script>
