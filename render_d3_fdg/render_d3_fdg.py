@@ -20,6 +20,9 @@ def rst(s, *repls):
     return s
 
 def rst_file(filename, *repls):
+    if not os.path.exists(filename):
+        d = os.path.dirname(os.path.abspath(__file__))
+        filename = os.path.join(d, filename)
     with open(filename) as fid:
         s = fid.read()
     return rst(s, *repls)
@@ -147,5 +150,5 @@ if __name__ == '__main__':
     #fdg(sample_nodes, sample_links, save_freq=60) # version that auto-DL's svgs
     #fdg_plus_images(sample_nodes, sample_links, save_freq=20) # version that auto-DL's svg's AND converts to pngs and animated gif
     #fdg_plus_images(sample_nodes, sample_links) # saves just the image of the final render
-    fdg_plus_images(sample_nodes, sample_links, save_freq=None, js_filename='fdg_with_slider.html.template') # disabled saving, best for testing
+    fdg_plus_images(sample_nodes, sample_links, save_freq=None, js_filename='fdg_with_jquery_search_and_slider.html.template') # disabled saving, best for testing
     
