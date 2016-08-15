@@ -67,33 +67,32 @@ function action_on_missing(s1, s2, test, action) {
     // Helper function
     // For each item in s1, if there is not a corresponding item in s2, do some action
     // Always loops over s1 in reverse order (in case that action is a deletion)
-    var i, j, v1, v2, broke;
+    var i, j, v1, broke;
     for(i=s1.length-1; i>=0; i--) {
         v1 = s1[i];
         broke = false;
         for(j in s2.nodes) {
-            v2 = s2[j];
-            if(test(v1, v2)) {
+            if(test(v1, s2[j])) {
                 broke = true;
                 break;
             }
         }
         if(!broke) {
-            action(i, j, v1, v2);
+            action(i, j);
         }
     }
 }
 
 function update_graph_data(graph, new_graph) {
     // Four loops to: remove nodes, remove links, add nodes, add links
-    action_on_missing(graph.nodes, new_graph.nodes, node_id_test, function(i, j, v, newv) {
+    action_on_missing(graph.nodes, new_graph.nodes, node_id_test, function(i, j) {
         graph.nodes.splice(i, 1); })
-    action_on_missing(graph.links, new_graph.links, link_id_test, function(i, j, v, newv) {
+    action_on_missing(graph.links, new_graph.links, link_id_test, function(i, j) {
         graph.links.splice(i, 1); })
-    action_on_missing(new_graph.nodes, graph.nodes, node_id_test, function(i, j, newv, v) {
-        graph.nodes.push(nodes_by_id[newv.id]); })
-    action_on_missing(new_graph.links, graph.links, link_id_test, function(i, j, newv, v) {
-        graph.links.push(links_by_id_pair[link_id_fun(newv)]); })
+    action_on_missing(new_graph.nodes, graph.nodes, node_id_test, function(i, j) {
+        graph.nodes.push(nodes_by_id[new_graph.nodes[i].id]); })
+    action_on_missing(new_graph.links, graph.links, link_id_test, function(i, j) {
+        graph.links.push(links_by_id_pair[link_id_fun(new_graph.links[i])]); })
 }
 
 function slider_action(h) {

@@ -253,7 +253,7 @@ var handle = slider.insert("circle", ".track-overlay")
 slider.transition() // Gratuitous intro!
     .duration(750)
     .tween("slider_action", function() {
-      i = d3.interpolate(0, 0.2);
+      i = d3.interpolate(0, 0.8);
       return function(t) { slider_action(i(t)); };
     });
 
@@ -293,11 +293,11 @@ var graph_rec = clone(graph); // A copy of the simulation-modified graph
 var link, link_update, node, node_update;
 
 // Make dictionaries to look up original nodes and links by id (or id pair)
-var nodes_by_id = {},
-    links_by_id_pair = {},
-    neighbors_by_id = {};
+var nodes_by_id = {}, links_by_id_pair = {};
 graph.nodes.forEach(function(v) { nodes_by_id[v.id] = v; });
 graph.links.forEach(function(v) { links_by_id_pair[link_id_fun(v)] = v; });
+
+var neighbors_by_id = {};
 graph.nodes.forEach(function(v) { neighbors_by_id[v.id] = []; });
 graph.links.forEach(function(v) { neighbors_by_id[v.source.id].push(v.target.id);
                                   neighbors_by_id[v.target.id].push(v.source.id);});
