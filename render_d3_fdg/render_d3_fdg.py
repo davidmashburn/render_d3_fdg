@@ -12,6 +12,20 @@ click_default = '''function click(d) {
 }
 '''
 
+zoom_default = '''function zoomed() {
+  fdg_svg.selectAll("g").attr("transform", d3.event.transform);
+}
+
+fdg_svg.append("rect")
+       .attr("width", width)
+       .attr("height", height)
+       .style("fill", "none")
+       .style("pointer-events", "all")
+       .call(d3.zoom()
+           .scaleExtent([${zoom_in}, ${zoom_out}])
+           .on("zoom", zoomed));
+'''
+
 def rst(s, *repls): 
     '''Really stupid templates
        Yeah, so templates might be better. Meh.'''
@@ -28,7 +42,8 @@ def rst_file(filename, *repls):
     return rst(s, *repls)
 
 def render_d3_fdg(dat, scale=1, force_scale=1, canvas_wh=(800, 800), save_freq='null',
-                  click_function=click_default, js_filename='fdg.html.template'):
+                  click_function=click_default, zooming_code=zoom_default,
+                  zoom_in=0.1, zoom_out=10, js_filename='fdg.html.template'):
     f = '/tmp/index.html'
     w, h = canvas_wh
     s = rst_file(js_filename,
@@ -38,6 +53,9 @@ def render_d3_fdg(dat, scale=1, force_scale=1, canvas_wh=(800, 800), save_freq='
                  ('canvash', h),
                  ('save_freq', save_freq),
                  ('click_function', click_function),
+                 ('zooming_code', zooming_code), # Make sure this comes first...
+                 ('zoom_in', zoom_in),
+                 ('zoom_out', zoom_out),
                  ('graph', json.dumps(dat)),
     )
     with open(f, 'w') as fid:

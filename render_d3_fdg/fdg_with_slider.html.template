@@ -262,6 +262,8 @@ var fdg_svg = d3.select("#fdg_area svg"),
     width = +fdg_svg.attr("width"),
     height = +fdg_svg.attr("height");
 
+${zooming_code}
+
 fdg_svg.append("g").attr("class", "links")
 fdg_svg.append("g").attr("class", "nodes")
 
