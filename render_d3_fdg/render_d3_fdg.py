@@ -150,5 +150,7 @@ if __name__ == '__main__':
     #fdg(sample_nodes, sample_links, save_freq=60) # version that auto-DL's svgs
     #fdg_plus_images(sample_nodes, sample_links, save_freq=20) # version that auto-DL's svg's AND converts to pngs and animated gif
     #fdg_plus_images(sample_nodes, sample_links) # saves just the image of the final render
+    vals = sorted({i[2] for i in sample_links})
+    sample_links = [(i, j, vals.index(k) * 1. / len(vals)) for i, j, k in sample_links]
     fdg_plus_images(sample_nodes, sample_links, save_freq=None, js_filename='fdg_with_jquery_search_and_slider.html.template') # disabled saving, best for testing
     
