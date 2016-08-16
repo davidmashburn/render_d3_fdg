@@ -15,6 +15,7 @@ and this: https://bl.ocks.org/mbostock/1095795-->
 <svg width="${canvasw}" height="${canvash}"></svg>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.14.2/lodash.min.js"></script>
 <script src="http://code.jquery.com/jquery-2.2.4.min.js"></script>
 <script src="http://code.jquery.com/ui/1.11.0/jquery-ui.min.js"></script>
 <style src="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css"> </style>
@@ -69,6 +70,19 @@ function sliceDown(graph, cutoff) {
     return new_graph;
 }
 
+function getConnected(selectedVal) {
+    //Use the current graph.links to identify which nodes are connected to this one
+    connections = [];
+    for(i in graph.links) {
+        if(graph.links[i].source.id == selectedVal) {
+            connections.push(graph.links[i].target.id);
+        } else if(graph.links[i].target.id == selectedVal) {
+            connections.push(graph.links[i].source.id);
+        }
+    }
+    return connections;
+}
+
 function action_on_missing(s1, s2, test, action) {
     // Helper function
     // For each item in s1, if there is not a corresponding item in s2, do some action
@@ -90,15 +104,34 @@ function action_on_missing(s1, s2, test, action) {
 }
 
 function update_graph_data(graph, new_graph) {
+    updateNeighborsByID();
     // Four loops to: remove nodes, remove links, add nodes, add links
+    // Remove nodes
     action_on_missing(graph.nodes, new_graph.nodes, node_id_test, function(i, j) {
-        graph.nodes.splice(i, 1); })
+        graph.nodes.splice(i, 1); });
+    // Remove links
     action_on_missing(graph.links, new_graph.links, link_id_test, function(i, j) {
-        graph.links.splice(i, 1); })
+        graph.links.splice(i, 1); });
+    // Add nodes -- now optionally adds them at the centroid of their neighbors
     action_on_missing(new_graph.nodes, graph.nodes, node_id_test, function(i, j) {
-        graph.nodes.push(nodes_by_id[new_graph.nodes[i].id]); })
+        var id = new_graph.nodes[i].id;
+        var node_to_add = nodes_by_id[id];
+        if(${move_new_nodes_to_centroid}) {
+            if(_.has(neighbors_by_id, id)) {
+                var connections = neighbors_by_id[id];
+                if(connections.length) {
+                    // adjust the node to be at the centroid of its neighbors
+                    var neighbor_nodes = _.map(connections, function (x) { return nodes_by_id[x]; });
+                    ['x','y','vx','vy'].forEach(function(k) {
+                        node_to_add[k] = _.mean(_.map(neighbor_nodes, k)); });
+                }
+            }
+        }
+        graph.nodes.push(node_to_add);
+    });
+    // Add links
     action_on_missing(new_graph.links, graph.links, link_id_test, function(i, j) {
-        graph.links.push(links_by_id_pair[link_id_fun(new_graph.links[i])]); })
+        graph.links.push(links_by_id_pair[link_id_fun(new_graph.links[i])]); });
 }
 
 function slider_action(h) {
@@ -106,6 +139,8 @@ function slider_action(h) {
     handle.attr("cx", x(h));
     update_graph_data(graph, sliceDown(graph_rec, h));
     update(graph);
+    setOptArray();
+    searchNode(); // just auto-call this too
     simulation.alpha(1).alphaTarget(0).restart();
 }
 
@@ -293,61 +328,39 @@ var graph_rec = clone(graph); // A copy of the simulation-modified graph
 var link, link_update, node, node_update;
 
 // Make dictionaries to look up original nodes and links by id (or id pair)
+function updateNeighborsByID() {
+    // Use the current graph to build an object of lists keyed on id
+    // Where each element is the id of a neighbor of its key
+    neighbors_by_id = {};
+    graph.nodes.forEach(function(v) { neighbors_by_id[v.id] = []; });
+    graph.links.forEach(function(v) { neighbors_by_id[v.source.id].push(v.target.id);
+                                      neighbors_by_id[v.target.id].push(v.source.id);});
+}
+
 var nodes_by_id = {}, links_by_id_pair = {};
 graph.nodes.forEach(function(v) { nodes_by_id[v.id] = v; });
 graph.links.forEach(function(v) { links_by_id_pair[link_id_fun(v)] = v; });
 
-var neighbors_by_id = {};
-graph.nodes.forEach(function(v) { neighbors_by_id[v.id] = []; });
-graph.links.forEach(function(v) { neighbors_by_id[v.source.id].push(v.target.id);
-                                  neighbors_by_id[v.target.id].push(v.source.id);});
+var neighbors_by_id;
 
 update(graph); // Build the first graph, start the sim, etc...
+updateNeighborsByID();
 
 ///////////////////////
 // Search setup area //
 ///////////////////////
 
-//Toggle stores whether the highlighting is on
-var toggle = 0;
-//Create an array logging what is connected to what
-var linkedByIndex = {};
-for (i = 0; i < graph.nodes.length; i++) {
-    linkedByIndex[i + "," + i] = 1;
-};
-graph.links.forEach(function (d) {
-    linkedByIndex[d.source.index + "," + d.target.index] = 1;
-});
-//This function looks up whether a pair are neighbours
-function neighboring(a, b) {
-    return linkedByIndex[a.index + "," + b.index];
-}
-function connectedNodes() {
-    if (toggle == 0) {
-        //Reduce the opacity of all but the neighbouring nodes
-        d = d3.select(this).node().__data__;
-        node.style("opacity", function (o) {
-            return neighboring(d, o) | neighboring(o, d) ? 1 : 0.1;
-        });
-        link.style("opacity", function (o) {
-            return d.index==o.source.index | d.index==o.target.index ? 1 : 0.1;
-        });
-        //Reduce the op
-        toggle = 1;
-    } else {
-        //Put them back to opacity=1
-        node.style("opacity", 1);
-        link.style("opacity", 1);
-        toggle = 0;
-    }
-}
-//////////////////////////////////////////////////////
+var optArray;
 
-var optArray = [];
-for (var i = 0; i < graph.nodes.length - 1; i++) {
-    optArray.push(graph.nodes[i].id);
+function setOptArray() {
+    optArray = [];
+    for (var i = 0; i < graph.nodes.length - 1; i++) {
+        optArray.push(graph.nodes[i].id);
+    }
+    optArray = optArray.sort();
 }
-optArray = optArray.sort();
+setOptArray();
+
 $(function () {
     $("#search").autocomplete({
         source: optArray
@@ -366,7 +379,9 @@ function searchNode() {
         var selected = nodeSel.filter(function (d, i) {
             return d.id == selectedVal;
         });
-        var connections = neighbors_by_id[selectedVal];
+        
+        var connections = getConnected(selectedVal);
+        //var connections = neighbors_by_id[selectedVal];
         function isNeighbor(test) {
             for(i in connections) if(connections[i] == test) return true;
             return false;

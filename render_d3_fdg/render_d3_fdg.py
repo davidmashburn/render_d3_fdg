@@ -42,8 +42,10 @@ def rst_file(filename, *repls):
     return rst(s, *repls)
 
 def render_d3_fdg(dat, scale=1, force_scale=1, canvas_wh=(800, 800), save_freq='null',
-                  click_function=click_default, zooming_code=zoom_default,
-                  zoom_in=0.1, zoom_out=10, js_filename='fdg.html.template'):
+                  move_new_nodes_to_centroid=True, click_function=click_default,
+                  zooming_code=zoom_default, zoom_in=0.1, zoom_out=10,
+                  js_filename='fdg.html.template'):
+    move_new_nodes_to_centroid = 'true' if move_new_nodes_to_centroid else 'false'
     f = '/tmp/index.html'
     w, h = canvas_wh
     s = rst_file(js_filename,
@@ -52,6 +54,7 @@ def render_d3_fdg(dat, scale=1, force_scale=1, canvas_wh=(800, 800), save_freq='
                  ('canvasw', w),
                  ('canvash', h),
                  ('save_freq', save_freq),
+                 ('move_new_nodes_to_centroid', move_new_nodes_to_centroid),
                  ('click_function', click_function),
                  ('zooming_code', zooming_code), # Make sure this comes first...
                  ('zoom_in', zoom_in),
