@@ -41,7 +41,9 @@ def rst_file(filename, *repls):
         s = fid.read()
     return rst(s, *repls)
 
-def render_d3_fdg(dat, scale=1, force_scale=1, canvas_wh=(800, 800), save_freq='null',
+def render_d3_fdg(dat, scale=1, force_scale=1, default_size=5, expand_scale=3,
+                  neighbor_scale=1.5, shrink_scale=1,
+                  canvas_wh=(800, 800), save_freq='null',
                   move_new_nodes_to_centroid=True, click_function=click_default,
                   zooming_code=zoom_default, zoom_in=0.1, zoom_out=10,
                   js_filename='fdg.html.template'):
@@ -51,6 +53,10 @@ def render_d3_fdg(dat, scale=1, force_scale=1, canvas_wh=(800, 800), save_freq='
     s = rst_file(js_filename,
                  ('scale', scale),
                  ('force_scale', force_scale),
+                 ('default_size', default_size),
+                 ('expand_scale', expand_scale),
+                 ('neighbor_scale', neighbor_scale),
+                 ('shrink_scale', shrink_scale),
                  ('canvasw', w),
                  ('canvash', h),
                  ('save_freq', save_freq),

@@ -220,7 +220,7 @@ function update(graph) {
               function (d) {return d.id;});
     node = node_update
         .enter().append("circle")
-        .attr("r", ${scale}*5)
+        .attr("r", ${scale}*${default_size})
         .attr("fill", function (d) { return color(d.group); })
         .attr("stroke", "#fff")
         .attr("stroke-width", String(1.5*${scale})+"px")
@@ -374,7 +374,7 @@ function searchNode() {
     if (selectedVal == "") {
         nodeSel.attr("stroke", "#fff")
                .attr("stroke-width", String(1.5*${scale})+"px")
-               .attr("r", ${scale}*5);
+               .attr("r", ${scale}*${default_size});
     } else {
         var selected = nodeSel.filter(function (d, i) {
             return d.id == selectedVal;
@@ -405,9 +405,9 @@ function searchNode() {
         });
         
         var t = d3.transition().duration(500);
-        selected.transition(t).attr("r", ${scale}*5*3).attr("opacity", 1);
-        neighbor.transition(t).attr("r", ${scale}*5*1.5).attr("opacity", 1);
-        not_selected.transition(t).attr("r", ${scale}*5).attr("opacity", 0.5);
+        selected.transition(t).attr("r", ${scale}*${expand_scale}*${default_size}).attr("opacity", 1);
+        neighbor.transition(t).attr("r", ${scale}*${neighbor_scale}*${default_size}).attr("opacity", 1);
+        not_selected.transition(t).attr("r", ${scale}*${shrink_scale}*${default_size}).attr("opacity", 0.5);
         link_selected.transition(t).attr("stroke-width", function (d) { return 4*${scale}*Math.sqrt(d.value); }).attr("opacity", 1);
         link_not_selected.transition(t).attr("stroke-width", function (d) { return ${scale}*Math.sqrt(d.value); }).attr("opacity", 0.5);
         //nodeSel.transition(t).attr("opacity", 1);
