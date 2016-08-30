@@ -142,7 +142,7 @@ function dragended(d) {
   d.fy = null;
 }
 
-${file=click_function_default.js.template}
+${click_function}
 
 function save_svg() {
   var html = d3.select("svg")
@@ -261,7 +261,7 @@ var fdg_svg = d3.select("#fdg_area svg"),
     width = +fdg_svg.attr("width"),
     height = +fdg_svg.attr("height");
 
-${file=zooming_code_default.js.template}
+${zooming_code}
 
 fdg_svg.append("g").attr("class", "links")
 fdg_svg.append("g").attr("class", "nodes")

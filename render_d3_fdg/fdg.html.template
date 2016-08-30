@@ -42,7 +42,7 @@ function dragended(d) {
   d.fy = null;
 }
 
-${file=click_function_default.js.template}
+${click_function}
 
 function save_svg() {
   var html = d3.select("svg")

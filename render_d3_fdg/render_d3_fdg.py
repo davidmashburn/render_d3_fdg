@@ -6,6 +6,13 @@ from collections import OrderedDict
 
 from sample_data import sample_nodes, sample_links
 
+def read(f):
+    with open(f) as fid:
+        return fid.read()
+
+click_default = read('click_function_default.js.template')
+zoom_default = read('zooming_code_default.js.template')
+
 def rst(s, *repls): 
     '''Really stupid templates
        Yeah, so templates might be better. Meh.'''
@@ -58,8 +65,8 @@ def rst_file(filename, *repls):
 def render_d3_fdg(dat, scale=1, force_scale=1, default_size=5, expand_scale=3,
                   neighbor_scale=1.5, shrink_scale=1,
                   canvas_wh=(800, 800), save_freq='null',
-                  move_new_nodes_to_centroid=True,
-                  zoom_in=0.1, zoom_out=10,
+                  move_new_nodes_to_centroid=True, click_function=click_default,
+                  zooming_code=zoom_default, zoom_in=0.1, zoom_out=10,
                   js_filename='fdg.html.template'):
     move_new_nodes_to_centroid = 'true' if move_new_nodes_to_centroid else 'false'
     f = '/tmp/index.html'
@@ -75,6 +82,8 @@ def render_d3_fdg(dat, scale=1, force_scale=1, default_size=5, expand_scale=3,
                  ('canvash', h),
                  ('save_freq', save_freq),
                  ('move_new_nodes_to_centroid', move_new_nodes_to_centroid),
+                 ('click_function', click_function),
+                 ('zooming_code', zooming_code), # Make sure this comes first...
                  ('zoom_in', zoom_in),
                  ('zoom_out', zoom_out),
                  ('graph', json.dumps(dat)),
