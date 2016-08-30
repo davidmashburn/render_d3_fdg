@@ -6,26 +6,6 @@ from collections import OrderedDict
 
 from sample_data import sample_nodes, sample_links
 
-click_default = '''function click(d) {
-  if (d3.event.defaultPrevented) return;
-  console.log('clicked');
-}
-'''
-
-zoom_default = '''function zoomed() {
-  fdg_svg.selectAll("g").attr("transform", d3.event.transform);
-}
-
-fdg_svg.append("rect")
-       .attr("width", width)
-       .attr("height", height)
-       .style("fill", "none")
-       .style("pointer-events", "all")
-       .call(d3.zoom()
-           .scaleExtent([${zoom_in}, ${zoom_out}])
-           .on("zoom", zoomed));
-'''
-
 def rst(s, *repls): 
     '''Really stupid templates
        Yeah, so templates might be better. Meh.'''
@@ -33,19 +13,53 @@ def rst(s, *repls):
         s = s.replace('${'+name+'}', str(value))
     return s
 
-def rst_file(filename, *repls):
-    if not os.path.exists(filename):
-        d = os.path.dirname(os.path.abspath(__file__))
-        filename = os.path.join(d, filename)
-    with open(filename) as fid:
+def _resolve_file(filename, search_dir=None):
+    '''Resolve a path
+       For absolute paths, do nothing, otherwise search in "search_dir"
+       and then in this file's directory
+       Raise an error if the file cannot be resolved'''
+    package_dir = os.path.dirname(os.path.abspath(__file__))
+    for d in ['', search_dir, package_dir]:
+        if d is None:
+            continue
+        f = os.path.join(d, filename)
+        if os.path.exists(f):
+            return f
+    raise IOError("File {} cannot be located".format(filename))
+
+def rst_file_basic(filename, *repls):
+    '''Run rst on a file'''
+    with open(_resolve_file(filename)) as fid:
         s = fid.read()
     return rst(s, *repls)
+
+def include_rst_files(filename, search_dir=None):
+    '''RST's import/include system
+       This uses traditional inclusion (like the c pre-processor)
+       and not template inheritance (like Jinja, Mako, etc.)
+       Searches out all instances of ${file=*} and
+       replaces them with the contents in that file
+       Runs recursively'''
+    filename = _resolve_file(filename, search_dir)
+    d = os.path.dirname(filename)
+    with open(filename) as fid:
+        s = fid.read()
+    ss = s.split('${file=')
+    main = ss[:1]
+    for i in ss[1:]:
+        fn, rest = i.split('}', 1)
+        main += [include_rst_files(fn, d), rest]
+    return ''.join(main)
+
+def rst_file(filename, *repls):
+    '''Run rst on a file after including any referenced files'''
+    return rst(include_rst_files(filename), *repls)
 
 def render_d3_fdg(dat, scale=1, force_scale=1, default_size=5, expand_scale=3,
                   neighbor_scale=1.5, shrink_scale=1,
                   canvas_wh=(800, 800), save_freq='null',
-                  move_new_nodes_to_centroid=True, click_function=click_default,
-                  zooming_code=zoom_default, zoom_in=0.1, zoom_out=10,
+                  move_new_nodes_to_centroid=True,
+                  zoom_in=0.1, zoom_out=10,
                   js_filename='fdg.html.template'):
     move_new_nodes_to_centroid = 'true' if move_new_nodes_to_centroid else 'false'
     f = '/tmp/index.html'
@@ -61,8 +75,6 @@ def render_d3_fdg(dat, scale=1, force_scale=1, default_size=5, expand_scale=3,
                  ('canvash', h),
                  ('save_freq', save_freq),
                  ('move_new_nodes_to_centroid', move_new_nodes_to_centroid),
-                 ('click_function', click_function),
-                 ('zooming_code', zooming_code), # Make sure this comes first...
                  ('zoom_in', zoom_in),
                  ('zoom_out', zoom_out),
                  ('graph', json.dumps(dat)),

@@ -1,0 +1,4 @@
+function click(d) {
+  if (d3.event.defaultPrevented) return;
+  console.log('clicked');
+}
