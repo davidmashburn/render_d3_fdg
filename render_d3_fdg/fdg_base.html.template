@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<!--This: https://bl.ocks.org/mbostock/6452972#index.html
+and this: https://bl.ocks.org/mbostock/1095795-->
+<meta charset="utf-8">
+<div class="ui-widget">
+   <input id="search">
+    <button type="button" onclick="searchNode()">Search</button>
+</div>
+<input id="SaveSVG" type="button" value="Save SVG" onclick="save_svg();" />
+<br>
+<div id="slider_area">
+<svg width="960" height="50"></svg>
+</div>
+<div id="fdg_area">
+<svg width="${canvasw}" height="${canvash}"></svg>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.14.2/lodash.min.js"></script>
+<script src="http://code.jquery.com/jquery-2.2.4.min.js"></script>
+<script src="http://code.jquery.com/ui/1.11.0/jquery-ui.min.js"></script>
+<style src="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css"> </style>
+<script src="https://d3js.org/d3.v4.js"></script>
+<script>
+
+${file=helper_functions.js.template}
+
+${file=graph_setup.js.template}
+
+${file=slider_setup.js.template}
+
+${file=search_setup.js.template}
+
+</script>

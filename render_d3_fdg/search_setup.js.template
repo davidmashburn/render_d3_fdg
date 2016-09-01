@@ -1,0 +1,17 @@
+///////////////////////
+// Search setup area //
+///////////////////////
+
+var optionsArray = getOptionsArray(graph);  //Global vars defined here
+
+$(function () {
+    $("#search").autocomplete({
+        source: optionsArray
+    });
+});
+
+function searchNode() {
+    //find the node
+    selectedVal = document.getElementById('search').value;
+    focusNode(selectedVal, fdg_svg, graph);
+}
