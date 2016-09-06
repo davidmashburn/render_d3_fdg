@@ -55,16 +55,19 @@ def rst_file(filename, *repls):
     '''Run rst on a file after including any referenced files'''
     return rst(include_rst_files(filename), *repls)
 
-def render_d3_fdg(dat, scale=1, force_scale=1, default_size=5, expand_scale=3,
+def render_d3_fdg(dat, title='A Force-Directed Graph',
+                  scale=1, force_scale=1, default_size=5, expand_scale=3,
                   neighbor_scale=1.5, shrink_scale=1,
-                  canvas_wh=(800, 800), save_freq='null',
+                  canvas_wh=(800, 800), slider_init_x=0.4,
+                  save_freq='null',
                   move_new_nodes_to_centroid=True, click_function='click_function_default',
                   zooming_code='enable_zoom()', zoom_in=0.1, zoom_out=10,
-                  js_filename='fdg.html.template'):
+                  html_filename='fdg.html.template'):
     move_new_nodes_to_centroid = 'true' if move_new_nodes_to_centroid else 'false'
     f = '/tmp/index.html'
     w, h = canvas_wh
-    s = rst_file(js_filename,
+    s = rst_file(html_filename,
+                 ('title', title),
                  ('scale', scale),
                  ('force_scale', force_scale),
                  ('default_size', default_size),
@@ -73,6 +76,7 @@ def render_d3_fdg(dat, scale=1, force_scale=1, default_size=5, expand_scale=3,
                  ('shrink_scale', shrink_scale),
                  ('canvasw', w),
                  ('canvash', h),
+                 ('slider_init_x', slider_init_x),
                  ('save_freq', save_freq),
                  ('move_new_nodes_to_centroid', move_new_nodes_to_centroid),
                  ('click_function', click_function),
@@ -193,5 +197,6 @@ if __name__ == '__main__':
     #fdg_plus_images(sample_nodes, sample_links) # saves just the image of the final render
     vals = sorted({i[2] for i in sample_links})
     sample_links = [(i, j, vals.index(k) * 1. / len(vals)) for i, j, k in sample_links]
-    fdg_plus_images(sample_nodes, sample_links, save_freq=None, js_filename='fdg_base.html.template') # disabled saving, best for testing
+    fdg_plus_images(sample_nodes, sample_links, title='Shakespeare characters',
+                    save_freq=None, html_filename='fdg_base.html.template') # disabled saving, best for testing
     

@@ -50,7 +50,6 @@ function updateNeighborsByID(graph) {
     // Use the current graph to build an object of lists keyed on id
     // Where each element is the id of a neighbor of its key
     var neighbors_by_id = {};
-    console.log(graph.nodes);
     graph.nodes.forEach(function(v) { neighbors_by_id[v.id] = []; });
     graph.links.forEach(function(v) { neighbors_by_id[v.source.id].push(v.target.id);
                                       neighbors_by_id[v.target.id].push(v.source.id);});
@@ -78,7 +77,6 @@ function action_on_missing(s1, s2, test, action) {
 }
 
 function update_graph_data(graph, new_graph) {
-    console.log(graph);
     neighbors_by_id = updateNeighborsByID(graph);
     // Four loops to: remove nodes, remove links, add nodes, add links
     // Remove nodes
@@ -155,6 +153,10 @@ function focusNode(selectedVal, fdg_svg, graph) {
         var neighbor = nodeSel.filter(function (d, i) {
             return isNeighbor(d.id);
         });
+        
+        var s = "&nbsp;" + ([selectedVal].concat(connections)).join("<br/>&nbsp;&nbsp;&nbsp;&nbsp;");
+        d3.selectAll('.connections').html(s);
+        
         var not_selected = nodeSel.filter(function (d, i) {
             return d.id != selectedVal &&
                    !isNeighbor(d.id);

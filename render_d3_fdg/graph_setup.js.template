@@ -69,9 +69,10 @@ function zoomed() {
 
 function enable_zoom() {
     fdg_svg.append("rect")
-           .attr("width", width)
-           .attr("height", height)
+           .attr("width", '100%')
+           .attr("height", '100%')
            .style("fill", "none")
+           //.style("stroke", "black")
            .style("pointer-events", "all")
            .call(d3.zoom()
                .scaleExtent([${zoom_in}, ${zoom_out}])
@@ -130,8 +131,8 @@ function update_fdg(graph) {
 }
 
 function build_fdg() {
-    fdg_svg.append("g").attr("class", "links")
-    fdg_svg.append("g").attr("class", "nodes")
+    fdg_svg.append("g").attr("class", "links");
+    fdg_svg.append("g").attr("class", "nodes");
 
     simulation = d3.forceSimulation()
         .force("link", d3.forceLink().id(function (d) { return d.id; })
@@ -151,8 +152,9 @@ function build_fdg() {
     graph.links.forEach(function(v) { links_by_id_pair[link_id_fun(v)] = v; });
 
     update_fdg(graph); // Build the first graph, start the sim, etc...
-    console.log(graph);
     neighbors_by_id = updateNeighborsByID(graph); // Make dictionaries to look up original nodes and links by id (or id pair)
+    fdg_svg.attr("width", "100%")
+           .attr("height", "100%"); // set this after building to make it responsive to window resize
 }
 
 ////////////////////////////////////////////////////////////////////////

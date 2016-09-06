@@ -63,9 +63,10 @@ function build_slider() {
     slider.transition() // Gratuitous intro!
         .duration(750)
         .tween("slider_action", function() {
-          i = d3.interpolate(0, 0.8);
+          i = d3.interpolate(0, ${slider_init_x});
           return function(t) { slider_action(i(t)); };
     });
+    slider_svg.attr("width", "100%");
 }
 
 build_slider(slider_svg);
