@@ -153,8 +153,8 @@ function build_fdg() {
 
     update_fdg(graph); // Build the first graph, start the sim, etc...
     neighbors_by_id = updateNeighborsByID(graph); // Make dictionaries to look up original nodes and links by id (or id pair)
-    fdg_svg.attr("width", "100%")
-           .attr("height", "100%"); // set this after building to make it responsive to window resize
+    //fdg_svg.attr("width", "100%")
+    //       .attr("height", "100%"); // set this after building to make it responsive to window resize
 }
 
 ////////////////////////////////////////////////////////////////////////
