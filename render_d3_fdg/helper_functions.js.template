@@ -131,6 +131,7 @@ function getConnected(graph, selectedVal) {
 
 function focusNode(selectedVal, fdg_svg, graph) {
     var nodeSel = fdg_svg.selectAll(".nodes").selectAll("circle");
+    var linkSel = fdg_svg.selectAll(".links").selectAll("line");
     var trans = d3.transition().duration(500);
     
     if (selectedVal == "") {
@@ -139,6 +140,8 @@ function focusNode(selectedVal, fdg_svg, graph) {
                .attr("stroke-width", String(1.5*${scale})+"px")
                .attr("r", ${scale}*${default_size})
                .attr("opacity", 1);
+        linkSel.transition(trans).attr("opacity", 1)
+            .attr("stroke-width", function (d) { return ${scale}*Math.sqrt(d.value); });
     } else {
         var selected = nodeSel.filter(function (d, i) {
             return d.id == selectedVal;
@@ -162,7 +165,6 @@ function focusNode(selectedVal, fdg_svg, graph) {
                    !isNeighbor(d.id);
         });
         
-        var linkSel = fdg_svg.selectAll(".links").selectAll("line");
         var link_selected = linkSel.filter(function (d, i) {
             return d.source.id == selectedVal ||
                    d.target.id == selectedVal;

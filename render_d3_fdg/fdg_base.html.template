@@ -35,8 +35,10 @@ and this: https://bl.ocks.org/mbostock/1095795-->
         <input id="SaveSVG" type="button" value="Save SVG" onclick="save_svg();" />
         <br>
         <div class="ui-widget">
-          <input id="search">
-          <button type="button" onclick="searchNode()">Search</button>
+          <form action="javascript:searchNode();">
+                <input id="search">
+                <button type="button" onclick="searchNode()">Search</button>
+          </form>
         </div>
       </div>
       <div class="center">

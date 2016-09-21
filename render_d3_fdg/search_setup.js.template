@@ -4,6 +4,19 @@
 
 USE_SEARCH = true;
 
+function rebuildAutocompleteBox() {
+    //globals used: graph
+    $('#search').autocomplete({
+        source: getOptionsArray(graph),
+        select: function(event, ui) {
+            $(this).val(ui.item.value);
+            $(this).parents("form").submit();  // this will submit the form.
+        }
+    });
+}
+
+rebuildAutocompleteBox();
+
 function searchNode() {
     //find the node
     selectedVal = document.getElementById('search').value;
