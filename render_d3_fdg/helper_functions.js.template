@@ -129,6 +129,10 @@ function getConnected(graph, selectedVal) {
     return connections;
 }
 
+function indented_list(selectedVal, connections) {
+    return "&nbsp;" + ([selectedVal].concat(connections)).join("<br/>&nbsp;&nbsp;&nbsp;&nbsp;");
+}
+
 function focusNode() {
     //globals used: selectedVal, fdg_svg, graph
     var nodeSel = fdg_svg.selectAll(".nodes").selectAll("circle");
@@ -158,7 +162,7 @@ function focusNode() {
             return isNeighbor(d.id);
         });
         
-        var s = "&nbsp;" + ([selectedVal].concat(connections)).join("<br/>&nbsp;&nbsp;&nbsp;&nbsp;");
+        var s = ${connections_html_function}(selectedVal, connections)
         d3.selectAll('.connections').html(s);
         
         var not_selected = nodeSel.filter(function (d, i) {

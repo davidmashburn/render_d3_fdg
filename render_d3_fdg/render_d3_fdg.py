@@ -60,7 +60,9 @@ def render_d3_fdg(dat, title='A Force-Directed Graph',
                   neighbor_scale=1.5, shrink_scale=1,
                   canvas_wh=(800, 800), slider_init_x=0.4,
                   save_freq='null',
-                  move_new_nodes_to_centroid=True, click_function='click_function_focus_node',
+                  move_new_nodes_to_centroid=True,
+                  click_function='click_function_focus_node',
+                  connections_html_function='indented_list',
                   zooming_code='enable_zoom()', zoom_in=0.1, zoom_out=10,
                   html_filename='fdg.html.template'):
     move_new_nodes_to_centroid = 'true' if move_new_nodes_to_centroid else 'false'
@@ -80,6 +82,7 @@ def render_d3_fdg(dat, title='A Force-Directed Graph',
                  ('save_freq', save_freq),
                  ('move_new_nodes_to_centroid', move_new_nodes_to_centroid),
                  ('click_function', click_function),
+                 ('connections_html_function', connections_html_function),
                  ('zooming_code', zooming_code), # Make sure this comes first...
                  ('zoom_in', zoom_in),
                  ('zoom_out', zoom_out),
