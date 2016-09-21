@@ -129,7 +129,8 @@ function getConnected(graph, selectedVal) {
     return connections;
 }
 
-function focusNode(selectedVal, fdg_svg, graph) {
+function focusNode() {
+    //globals used: selectedVal, fdg_svg, graph
     var nodeSel = fdg_svg.selectAll(".nodes").selectAll("circle");
     var linkSel = fdg_svg.selectAll(".links").selectAll("line");
     var trans = d3.transition().duration(500);

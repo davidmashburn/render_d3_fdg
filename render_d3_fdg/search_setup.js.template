@@ -4,8 +4,21 @@
 
 USE_SEARCH = true;
 
+
+function grabSearchVal() {
+    // globals used: selectedVal
+    // Stick the search box value into selectedVal
+    selectedVal = document.getElementById('search').value;
+}
+
+function updateSearchVal() {
+    //globals used: selectedVal
+    // Stick selectedVal into the search box
+    document.getElementById('search').value = selectedVal;
+}
+
 function rebuildAutocompleteBox() {
-    //globals used: graph
+    //globals used: graph, selectedVal
     $('#search').autocomplete({
         source: getOptionsArray(graph),
         select: function(event, ui) {
@@ -13,12 +26,12 @@ function rebuildAutocompleteBox() {
             $(this).parents("form").submit();  // this will submit the form.
         }
     });
+    updateSearchVal();
+}
+
+function searchNode() {
+    grabSearchVal();
+    focusNode();
 }
 
 rebuildAutocompleteBox();
-
-function searchNode() {
-    //find the node
-    selectedVal = document.getElementById('search').value;
-    focusNode(selectedVal, fdg_svg, graph);
-}

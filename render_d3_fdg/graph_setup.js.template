@@ -18,7 +18,6 @@ var nodes_by_id = {},
     neighbors_by_id = {};
 
 var selectedVal = '';
-
 var USE_SEARCH = false;
 
 ////////////////////////////////////////////////////////////////////////
@@ -60,9 +59,17 @@ function dragended(d) {
   d.fy = null;
 }
 
-function click_function_default(d) {
+function click_function_log(d) {
   if (d3.event.defaultPrevented) return;
   console.log('clicked');
+}
+
+function click_function_focus_node(d) {
+    // globals used: selectedVal
+    if (d3.event.defaultPrevented) return;
+    selectedVal = d.id;
+    if(USE_SEARCH) { document.getElementById('search').value = selectedVal; }
+    focusNode();
 }
 
 function zoomed() {

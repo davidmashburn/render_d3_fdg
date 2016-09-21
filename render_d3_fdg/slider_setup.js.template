@@ -11,9 +11,9 @@ function slider_action(h) {
     //globals used: handle, fdg_svg, graph, graph_rec, simulation
     handle.attr("cx", slider_pos(h));
     update_graph_data(graph, sliceDown(graph_rec, h));
-    update_fdg(graph);    
+    update_fdg(graph);
     if(USE_SEARCH) { rebuildAutocompleteBox(); }
-    focusNode(selectedVal, fdg_svg, graph); // just auto-call this too
+    focusNode(); // just auto-call this too
     simulation.alpha(1).alphaTarget(0).restart();
 }
 
