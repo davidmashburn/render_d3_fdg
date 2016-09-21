@@ -6,11 +6,16 @@ var slider_svg = d3.select("#slider_area svg"), // Slider Globals
     slider, handle, slider_pos;
 
 function slider_action(h) {
-    //globals used: handle, fdg_svg, graph, graph_rec, simulation
+    //globals used: handle, fdg_svg, graph, graph_rec, simulation, optionsArray
     handle.attr("cx", slider_pos(h));
     update_graph_data(graph, sliceDown(graph_rec, h));
     update_fdg(graph);
-    optionsArray = getOptionsArray(graph);
+    
+    if(USE_SEARCH) {
+        $(function () { $("#search").autocomplete({
+            source: getOptionsArray(graph)
+        })});
+    }
     focusNode(selectedVal, fdg_svg, graph); // just auto-call this too
     simulation.alpha(1).alphaTarget(0).restart();
 }
@@ -42,10 +47,10 @@ function build_slider() {
     slider.append("rect")
         .attr("class", "track-overlay")
         .attr("style", "cursor: crosshair; opacity: 0;")
-	    .attr("x", slider_pos.range()[0])
-	    .attr("y", -10)
-	    .attr("width", width)
-	    .attr("height", 20)
+        .attr("x", slider_pos.range()[0])
+        .attr("y", -10)
+        .attr("width", width)
+        .attr("height", 20)
         .call(d3.drag()
             .on("start.interrupt", function() { slider.interrupt(); })
             .on("start drag", function() { slider_action(slider_pos.invert(d3.event.x)); }));
