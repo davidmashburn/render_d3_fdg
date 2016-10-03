@@ -59,9 +59,9 @@ and this: https://bl.ocks.org/mbostock/1095795-->
 </html>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.14.2/lodash.min.js"></script>
-<script src="http://code.jquery.com/jquery-2.2.4.min.js"></script>
-<script src="http://code.jquery.com/ui/1.11.0/jquery-ui.min.js"></script>
-<style src="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css"> </style>
+<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+<script src="https://code.jquery.com/ui/1.11.0/jquery-ui.min.js"></script>
+<style src="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css"> </style>
 <script src="https://d3js.org/d3.v4.js"></script>
 <script>
 
