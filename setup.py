@@ -13,8 +13,8 @@ setup(
     scripts=[],
     url='http://pypi.python.org/pypi/render_d3_fdg/',
     license='LICENSE.txt',
-    description='<ADD DESCRIPTION>',
-    long_description=open('README.txt').read(),
+    description='Render d3 force directed graphs from python',
+    long_description=open('README.md').read(),
     install_requires=[
                       
                      ],
