@@ -1,4 +1,4 @@
 include *.txt
 include *.rst
 include *.md
-include *.template
+include render_d3_fdg/*.template
