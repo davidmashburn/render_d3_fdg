@@ -64,7 +64,8 @@ def render_d3_fdg(dat, title='A Force-Directed Graph',
                   click_function='click_function_focus_node',
                   connections_html_function='indented_list',
                   zooming_code='enable_zoom()', zoom_in=0.1, zoom_out=10,
-                  html_filename='fdg_base.html.template'):
+                  html_filename='fdg_base.html.template',
+                  custom_repls=()):
     move_new_nodes_to_centroid = 'true' if move_new_nodes_to_centroid else 'false'
     f = '/tmp/index.html'
     w, h = canvas_wh
@@ -87,7 +88,8 @@ def render_d3_fdg(dat, title='A Force-Directed Graph',
                  ('zoom_in', zoom_in),
                  ('zoom_out', zoom_out),
                  ('graph', json.dumps(dat)),
-    )
+                 *custom_repls
+                )
     with open(f, 'w') as fid:
         fid.write(s)
     
