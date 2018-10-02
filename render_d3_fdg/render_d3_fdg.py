@@ -1,10 +1,13 @@
+from __future__ import print_function
+from __future__ import absolute_import
+
 import os
 import glob
 import json
 import time
 from collections import OrderedDict
 
-from sample_data import sample_nodes, sample_links
+from .sample_data import sample_nodes, sample_links
 
 def rst(s, *repls): 
     '''Really stupid templates
@@ -105,7 +108,7 @@ def fdg(nodes, links, **kwds):
     return render_d3_fdg(d, **kwds)
 
 def do_cmd(cmd):
-    print cmd
+    print(cmd)
     return os.system(cmd)
 
 def file_stem(filename):
