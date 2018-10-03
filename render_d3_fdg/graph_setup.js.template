@@ -32,8 +32,8 @@ function ticked() {
        .attr("x2", function (d) { return d.target.x; })
        .attr("y2", function (d) { return d.target.y; }); });
   [node, node_update].forEach(function(n) {
-      n.attr("cx", function (d) { return d.x; })
-       .attr("cy", function (d) { return d.y; }); });
+      n.attr("transform", function(d) {
+          return "translate(" + d.x + "," + d.y + ")"; }); });
 
   if(${save_freq} && save_counter % ${save_freq} == 0) {
     save_svg();
@@ -118,11 +118,14 @@ function update_fdg(graph) {
         .attr("stroke-opacity", "0.6");
     
     node_update = fdg_svg.selectAll(".nodes")
-        .selectAll("circle")
+        .selectAll("g")
         .data(graph.nodes,
               function (d) {return d.id;});
     node = node_update
-        .enter().append("circle")
+        .enter().append("g")
+    
+    circles = node
+        .append("circle")
         .attr("r", ${scale}*${default_size})
         .attr("fill", function (d) { return color(d.group); })
         .attr("stroke", "#fff")
@@ -131,7 +134,18 @@ function update_fdg(graph) {
                        .on("drag", dragged)
                        .on("end", dragended))
         .on('click', ${click_function});
-    
+
+    if(${show_labels}) {
+        labels = node
+            .append("text")
+            .text(function(d) { return d.id; })
+            .attr('x', 6)
+            .attr('y', 3)
+            //.attr("dx", 12)
+            //.attr("dy", ".35em")
+            ;
+    };
+
     link_update.exit().remove();
     node_update.exit().remove();
     
