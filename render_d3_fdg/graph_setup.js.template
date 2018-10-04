@@ -95,7 +95,7 @@ function save_svg() {
                .attr("version", 1.1)
                .attr("xmlns", "http://www.w3.org/2000/svg")
                .node().outerHTML;
-  var svgData = html.split(">").join(">\\n"); //hack
+  var svgData = html; //.split(">").join(">\\n"); //hack
   var svgBlob = new Blob([svgData], {type:"image/svg+xml;charset=utf-8"});
   var svgUrl = URL.createObjectURL(svgBlob);
   var downloadLink = document.createElement("a");
