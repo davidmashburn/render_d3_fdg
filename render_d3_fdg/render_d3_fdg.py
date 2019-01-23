@@ -109,6 +109,15 @@ def render_d3_fdg(dat,
     os.system('xdg-open '+f)
 
 def fdg(nodes, links, **kwds):
+    """High-level wrapper around render_d3_fdg
+
+    nodes is a list of 2-tuples of strings like: (id, group)
+    links is a list of 2-tuples of strings like: (source, target, value)
+
+    source and target should be id's found in nodes
+
+    all kwds are passed to render_d3_fdg
+    """
     d = OrderedDict([
         ("nodes", [OrderedDict([("id", _id), ("group", group)])
                   for _id, group in nodes]),

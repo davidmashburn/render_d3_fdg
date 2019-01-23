@@ -18,4 +18,15 @@ setup(
     install_requires=[
                       
                      ],
+    data_files=[('render_d3_fdg', [
+            'fdg_base_no_search.html.template',
+            'fdg_base_orig.html.template',
+            'fdg_base_simplest.html.template',
+            'fdg_base.html.template',
+            'graph_setup.js.template',
+            'helper_functions.js.template',
+            'search_setup.js.template',
+            'slider_setup.js.template',
+        ]
+    )]
 )
